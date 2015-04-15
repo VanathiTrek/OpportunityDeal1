@@ -33,12 +33,12 @@
 	</script>
 	<apex:form >
 	
-		<apex:actionFunction name="fetchClientQA" action="{!fetchClientQuestionsAnsAnswers}" >
+		<apex:actionFunction name="fetchClientQA" action="{!fetchClientQuestionsAnsAnswers}" rerender="QATable">
 	        <apex:param name="strOpportunityId" value="" assignTo="{!strOpportunityIdd}" />
     	</apex:actionFunction>
     
 		<apex:pageBlock >
-			<apex:pageBlockTable value="{!lstQuestionAnswers}" var="table">
+			<apex:pageBlockTable id="QATable" value="{!lstQuestionAnswers}" var="table">
 				
 				<apex:column >
 					<apex:facet name="header"> S.No </apex:facet>

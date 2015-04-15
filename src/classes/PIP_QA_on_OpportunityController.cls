@@ -2,7 +2,8 @@
 	* Name: PIP_QA_on_OpportunityController
     * Author: Vanathi.V
     * Reviewer: Vishnu
-    * Description: 
+    * Description: PIP_QA_on_OpportunityController is to take a note of Questions and Answers to close a deal. 
+    			   This contains the conversation between rep and Client in the form of Questions and Answers.
 **/
 public with sharing class PIP_QA_on_OpportunityController {
 	
@@ -32,11 +33,14 @@ public with sharing class PIP_QA_on_OpportunityController {
 	public PIP_QA_on_OpportunityController (ApexPages.StandardController sc) {
 	 	
 	 	strOpportunityIdd = ApexPages.currentPage().getParameters().get('Idd');
-		system.debug('=====strOpportunityIdd======'+strOpportunityIdd);
 	}
 	
 	public void fetchClientQuestionsAnsAnswers() {
 		
-		system.debug('=====comes inside fetchClientQuestionsAnsAnswers======');
+		for(Opportunity objOpp : [	SELECT Id,(SELECT Id, Product2Id FROM OpportunityLineItems) 
+									FROM Opportunity
+									WHERE Id =: strOpportunityIdd
+								]) {									
+		}
 	}
 }
