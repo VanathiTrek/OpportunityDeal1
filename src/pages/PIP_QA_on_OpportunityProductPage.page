@@ -42,10 +42,12 @@
 				
 				<apex:column >
 					<apex:facet name="header"> S.No </apex:facet>
+					
 				</apex:column>
 				
 				<apex:column >
 					<apex:facet name="header"> Opportunity Product </apex:facet>
+					<apex:outputText value="{!table.strOppProductName}"/>
 				</apex:column>
 				
 				<apex:column >
