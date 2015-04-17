@@ -16,9 +16,17 @@
 				strOpportunityIdd = OppId;
 				fetchClientQA(strOpportunityIdd);
 			}
+			
+			/*var refreshPage = function() {
+			
+				$('#something').click(function() {
+    				location.reload();
+				});	
+			}*/
 			return{
 			
 				init: init
+				//refreshPage: refreshPage
 			}
 			
 		}();
@@ -38,6 +46,14 @@
     	</apex:actionFunction>
     
 		<apex:pageBlock >
+			<apex:pageBlockButtons > 
+				<!-- <apex:commandButton action="{}" value="Save"/>
+				<apex:commandButton action="{}" value="Cancel" />
+				<input type="button" value="Cancel" onClick="CREATE_INVOICE.backToLineItem()" class="btn"/>
+                        
+                <input type="button" value="Submit" onClick="CREATE_INVOICE.previewTimesheet()" class="btn"/>-->
+                        
+			</apex:pageBlockButtons>
 			<apex:pageBlockTable id="QATable" value="{!lstQuestionAnswers}" var="table">
 				
 				<apex:column >
@@ -52,17 +68,40 @@
 				
 				<apex:column >
 					<apex:facet name="header"> Questions </apex:facet>
+					<apex:pageBlockTable id="QWrapperTable" value="{!table.lstQuestobject}" var="QuesTable">
+						<apex:column >
+							<apex:outputText value="{!QuesTable.QuestionText__c}"/>
+						</apex:column>
+					</apex:pageBlockTable>
 				</apex:column>
 				
 				<apex:column >
 					<apex:facet name="header"> Answers </apex:facet>
+					<apex:pageBlockTable id="AWrapperTable" value="{!table.lstAnswerObject}" var="AnsTable">
+						
+						<apex:column rendered="{!if(AnsTable.Question__r.Question_Type__c == 'Text Area', true, false)}">
+							 <apex:inputTextarea id="TextArea" value="{!AnsTable.Answer_TextType__c}"/>
+							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
+						</apex:column>
+						
+						<apex:column rendered="{!if(AnsTable.Question__r.Question_Type__c == 'Picklist', true, false)}">
+						
+							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
+						</apex:column>
+						
+						<apex:column rendered="{!if(AnsTable.Question__r.Question_Type__c == 'Radio Button', true, false)}">
+							
+							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
+						</apex:column>
+						
+					</apex:pageBlockTable>
 				</apex:column>
 				
 			</apex:pageBlockTable>
 			
 			<apex:outputPanel >
 	        	<apex:outputText value="Total No.Questions : " />
-	            	<span id="NoQuestions" name="NoQuestions">  </span> 
+	            	<span id="NoQuestions" name="NoQuestions"> {!lstQuestobject} </span> 
 	        </apex:outputPanel> <br/>
 	        
 	        <apex:outputPanel >
