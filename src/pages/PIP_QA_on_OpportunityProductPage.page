@@ -36,6 +36,7 @@
 			console.log('==comes in onLoad==');
 			console.log('==cstrOpportunityIdd=='+'{!strOpportunityIdd}');
 			PIP_QA_on_OpportunityProductPage.init('{!strOpportunityIdd}');
+			//populateAnswer_ifAlreadyPresent();
 		});
 		
 	</script>
@@ -44,17 +45,25 @@
 		<apex:actionFunction name="fetchClientQA" action="{!fetchClientQuestionsAnsAnswers}" rerender="QATable">
 	        <apex:param name="strOpportunityId" value="" assignTo="{!strOpportunityIdd}" />
     	</apex:actionFunction>
+    	
+    	<apex:actionFunction name="populateAnswer_ifAlreadyPresent" action="{!populateAnswers}" rerender="QATable">
+    	</apex:actionFunction>
     
 		<apex:pageBlock >
 			<apex:pageBlockButtons > 
-				<input type="button" value="Cancel" />     
-                <input type="button" value="Submit" />      
+				<apex:commandButton value="Save" action="{!Submit}" />   
+                <apex:commandButton value="cancel" action="{!Cancel}" />     
 			</apex:pageBlockButtons>
 			<apex:pageBlockTable id="QATable" value="{!lstQuestionAnswers}" var="table">
 				
 				<apex:column >
-					<apex:facet name="header"> Opportunity Product </apex:facet>
-					<apex:outputText value="{!table.strOppProductName}"/>
+					<apex:facet name="header"> Product Group </apex:facet>
+					<apex:outputText value="{!table.strProductGroupName}"/>
+				</apex:column>
+				
+				<apex:column >
+					<apex:facet name="header"> Product </apex:facet>
+					<apex:outputText value="{!table.strProductName}"/>
 				</apex:column>
 				
 				<apex:column >
@@ -68,33 +77,33 @@
 				
 				<apex:column >
 					<apex:facet name="header"> Answers </apex:facet>
-					<apex:pageBlockTable id="AWrapperTable" value="{!table.lstAnswerObject}" var="AnsTable">
+					<apex:pageBlockTable id="AWrapperTable" value="{!table.lstQuestobject}" var="AnsTable">
 						
-						<apex:column rendered="{!if(AnsTable.Question__r.Question_Type__c == 'Text Area', true, false)}">
-							 <apex:inputTextarea id="TextArea" value="{!AnsTable.Answer_TextType__c}"/>
+						<apex:column rendered="{!if(AnsTable.Question_Type__c == 'Text Area', true, false)}">
+							 <apex:inputTextarea id="TextArea" value="{!table.mapAnswers[AnsTable.Id].Answer_TextType__c}"/>
 							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
 						</apex:column>
 						
-						<apex:column rendered="{!if(AnsTable.Question__r.Question_Type__c == 'Picklist', true, false)}">
-							<!-- <apex:selectList id="pickQuest" value="{!Question__c.Question_Picklist_Options__c}" size="1" required="true">
-  								<apex:selectOptions value="{!Picklist}"/>
-							</apex:selectList>-->
+						<apex:column rendered="{!if(AnsTable.Question_Type__c == 'Picklist', true, false)}">
+							<apex:selectList id="pickQuest" value="{!table.mapOptions[AnsTable.Id]}" size="1" required="true">
+  								<apex:selectOptions value="{!table.mapSelectOptions[AnsTable.Id]}"/>
+							</apex:selectList>
 							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
 						</apex:column>
 						
-						<apex:column rendered="{!if(AnsTable.Question__r.Question_Type__c == 'Radio Button', true, false)}">
+<!-- 						<apex:column rendered="{!if(AnsTable.Question__r.Question_Type__c == 'Radio Button', true, false)}"> -->
 							
 							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
-						</apex:column>
+<!-- 						</apex:column> -->
 						
 					</apex:pageBlockTable>
 				</apex:column>
 				
 			</apex:pageBlockTable>
 			<br/>
-			<apex:outputPanel >
+<!-- 			<apex:outputPanel >
 	        	<apex:outputText value="Total No.Questions : " />
-	            	<span id="NoQuestions" name="NoQuestions"> </span> 
+	            	<span id="NoQuestions" name="NoQuestions"> {!TotalQuestioncount} </span> 
 	        </apex:outputPanel> <br/><br/>
 	        
 	        <apex:outputPanel >
@@ -105,7 +114,7 @@
 	        <apex:outputPanel >
 	        	<apex:outputText value="No.Questions Not Answered : " />
 	            	<span id="NoUnAnsweredQuestions" name="NoUnAnsweredQuestions">  </span> 
-	        </apex:outputPanel> <br/><br/>
+	        </apex:outputPanel> <br/><br/> -->
 	        
 		</apex:pageBlock>
 	</apex:form>
