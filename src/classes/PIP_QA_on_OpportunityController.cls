@@ -7,41 +7,41 @@
 **/
 public with sharing class PIP_QA_on_OpportunityController {
 	
-	public String strOpportunityIdd 	{get;set;}
-	public String Idd					{get;set;}
-	private Integer index;
-	public Integer TotalQuestioncount	{get;set;}
-	public Integer TotalAnswersCount	{get;set;}
-	public Decimal TotalAnswer 			{get;set;}
-	public Decimal TotalAnsweredField 			{get;set;}
+	public String strOpportunityIdd 						{get;set;}
+	public String Idd										{get;set;}
 	
-	public List<QuestionAnswers> lstQuestionAnswers 	{get;set;}
-	public list<selectOption> lstSelectOptions 			{get;set;}
-	//public List<Question__c> lstQuestobject			{get;set;}
-	//public list<Answer__c> lstAnswerObject 			{get;set;}
-	//public map<String,Answer__c> mapAnswers				{get;set;}
-	public map<String,list<Answer__c>> mapAnswers				{get;set;}
-	public map<string,list<selectOption>> mapSelectOptions {get;set;}
-	public map<string,string> mapOptions 				{get;set;}
-	public map<Id,List<Product2>> mapPGid_Prod;
-	public list<Answer__c> lstAnswers 					{get;set;}
-	public Answer__c objAnswer							{get;set;}
+	public Decimal TotalAnswer 								{get;set;}
+	public Decimal TotalAnsweredField 						{get;set;}
+	public Decimal TotalUnAnsweredField						{get;set;}
+	
+	public list<QuestionAnswers> lstQuestionAnswers 		{get;set;}
+	public list<selectOption> lstSelectOptions 				{get;set;}
+	public list<Answer__c> lstAnswers 						{get;set;}
 	public list<Product2> lstProductObject;
+	
+	//public map<String,Answer__c> mapAnswers				{get;set;}
+	public map<String,list<Answer__c>> mapAnswers			{get;set;}
+	public map<string,list<selectOption>> mapSelectOptions 	{get;set;}
+	public map<string,string> mapOptions 					{get;set;}
+	public map<Id,List<Product2>> mapPGid_Prod;
+	
+	public Answer__c objAnswer								{get;set;}
 	
 	//Inner Class
 	public class QuestionAnswers {
 		
-		public Integer index					{get;set;}
-		public String strProductGroupName		{get;set;} 
-		public String strProductName 			{get;set;} 
-		public list<Question__c> lstQuestobject	{get;set;}
-		public Answer__c ObjAnswer				{get;set;}
-		public map<string,string> mapOptions 	{get;set;}
-		//public map<String,Answer__c> mapAnswers	{get;set;}
-		public map<String,list<Answer__c>> mapAnswers	{get;set;}
-		public map<string,list<selectOption>> mapSelectOptions {get;set;}
-		public String strOpportunityIdd 	{get;set;}
+		public String strProductGroupName					{get;set;} 
+		public String strProductName 						{get;set;} 
+		public String strOpportunityIdd 					{get;set;}
+		public list<Question__c> lstQuestobject				{get;set;}
 		public list<Product2> lstProductObject;
+		
+		public map<string,string> mapOptions 				{get;set;}
+		//public map<String,Answer__c> mapAnswers			{get;set;}
+		public map<String,list<Answer__c>> mapAnswers		{get;set;}
+		public map<string,list<selectOption>> mapSelectOptions {get;set;}
+		
+		public Answer__c ObjAnswer							{get;set;}
 		
 		//Inner Class Constructor
 		public QuestionAnswers(String strOppId, list<Product2> lstProductObject, String strProductGroupName, String strProductName, list<Question__c> lstQuest, map<String,list<Answer__c>> mapAnswers, map<String,String>mapOptions, map<string,list<selectOption>>mapSelectOptions) {
@@ -60,11 +60,8 @@ public with sharing class PIP_QA_on_OpportunityController {
 	//Main Class Constructor
 	public PIP_QA_on_OpportunityController (ApexPages.StandardController sc) {
 		
-		Integer index = TotalQuestioncount = 0;
-		//String OLIname = '';
-		Integer TotalAnswersCount = 1;
-	 	
 	 	strOpportunityIdd = ApexPages.currentPage().getParameters().get('Idd');
+	 	fetchClientQuestionsAnsAnswers();
 	}
 	
 	public void fetchClientQuestionsAnsAnswers() {
@@ -77,10 +74,10 @@ public with sharing class PIP_QA_on_OpportunityController {
 		
 		//lstQuestobject = new list<Question__c>();
 		lstAnswers = new list<Answer__c>();
-		lstQuestionAnswers = new List<QuestionAnswers>();
-		mapPGid_Prod = new map<Id,List<Product2>>();
+		lstQuestionAnswers = new list<QuestionAnswers>();
 		list<Product2> lstProductObject = new list<Product2>();
 		
+		mapPGid_Prod = new map<Id,list<Product2>>();
 		//mapAnswers = new map<String,Answer__c>();
 		mapAnswers = new map<String,list<Answer__c>>();
 		mapSelectOptions  = new map<string,list<selectOption>>();
@@ -94,11 +91,20 @@ public with sharing class PIP_QA_on_OpportunityController {
 			setProductId.add(objOLI.Product2Id);
 			system.debug('=====setProductId0====='+setProductId);				
 		}
+		
+		for(Opportunity objOpp : [	SELECT Id, Total_Answered_Fields__c, Total_UnAnswered_Fields__c
+									FROM Opportunity
+									WHERE Id =: strOpportunityIdd]) {
+											
+			TotalUnAnsweredField = objOpp.Total_UnAnswered_Fields__c;
+			TotalAnsweredField = objOpp.Total_Answered_Fields__c; 
+			TotalAnswer = TotalUnAnsweredField + TotalAnsweredField;								
+		}
 							
 		for(Product_Group__c objPG : [	SELECT Id, Name, 
-											(SELECT Id, Name, Product_Group__c 
-											FROM Products__r
-											WHERE Id =: setProductId)
+											(	SELECT Id, Name, Product_Group__c 
+												FROM Products__r
+												WHERE Id =: setProductId)
 										FROM Product_Group__c
 									]) {
 			
@@ -107,10 +113,6 @@ public with sharing class PIP_QA_on_OpportunityController {
 			system.debug('=====lstProductObject====='+lstProductObject);	
 			
 			//mapPGid_Prod.put(ProductGroupId, lstProductObject);
-			/*for(Product2 objprod : lstProductObject) {
-							
-				String ProductId = objprod.Id;*/
-				
 			for(Question__c objQuestions : [SELECT Id, Name, QuestionText__c, Question_Type__c, Question_Picklist_Options__c, Product_Group__c,
 												(SELECT Id, Answer_TextType__c, Product__r.Id, Product__c, Opportunity__r.Id, Opportunity__c
 													FROM Answer__r
@@ -120,8 +122,7 @@ public with sharing class PIP_QA_on_OpportunityController {
 											WHERE Product_Group__c =: ProductGroupId
 											]) {
 					
-					system.debug('=====strOpportunityIdd====='+strOpportunityIdd);
-					system.debug('=====objQuestions====='+objQuestions);	
+					/*Get list of questions respective to Product group*/	
 					list<Question__c> lstQuest_temp = new list<Question__c>();
 					QuestionId = objQuestions.Id;
 					
@@ -131,13 +132,10 @@ public with sharing class PIP_QA_on_OpportunityController {
 					}	
 										
 					lstQuest_temp.add(objQuestions);
-					//TotalQuestioncount = lstQuest_temp.size();
-					//system.debug('=====TotalQuestioncount====='+TotalQuestioncount);	
 					mapPGid_LstofQues.put(ProductGroupId, lstQuest_temp);
 					system.debug('===mapPGid_LstofQues===='+mapPGid_LstofQues);
-					//TotalQuestioncount = (mapPGid_LstofQues.values()).size();
-					//system.debug('=====TotalQuestioncount====='+TotalQuestioncount);	
 					    
+					    /*Get Picklist values*/
 	                  	lstSelectOptions = new list<selectOption>();
 	                  	list<string> lstPicklistOptions = new list<string>();
 	                  	
@@ -155,41 +153,40 @@ public with sharing class PIP_QA_on_OpportunityController {
 	                  	mapSelectOptions.put(objQuestions.id, lstSelectOptions );
 	                  	mapOptions.put(objQuestions.id, '' );
 						
+						/*Get Answers for the respective questions*/
 						for(Product2 objprod : lstProductObject) {
 							
 							String ProductId = objprod.Id;
 							
 							list<Answer__c> lstAnswers_temp = new list<Answer__c>();
-							//lstAnswers_temp = objQuestions.Answer__r;
 						
-						if(objQuestions.Answer__r.size() <= 0) {
-							
-							system.debug('=====Answer__r====='+objQuestions.Answer__r);					
-							objAnswer = new Answer__c();
-	                      	objAnswer.Question__c = objQuestions.id; 
-	                      	objAnswer.opportunity__c = strOpportunityIdd;
-	                      	objAnswer.Product__c = ProductId;
-	                      	//objAnswer.Product__c = objPG.Products__r;
-	                      	if(mapAnswers.containsKey(objQuestions.id)) {
-	                      		
-	                      		lstAnswers_temp = mapAnswers.get(objQuestions.id);
-	                      	}
-	                      	
-	                      	lstAnswers_temp.add(objAnswer);
-	                      	//mapAnswers.put(objQuestions.id,objAnswer);
-	                      	mapAnswers.put(objQuestions.id,lstAnswers_temp);
-	                      	system.debug('=====objAnswer====='+objAnswer);
-	                      	//system.debug('=====mapAnswers1====='+mapAnswers);
-	                      	//lstAnswers.add(objAnswer); 
-	                      	system.debug('=====lstAnswers====='+lstAnswers);      
-	                  	}
-	                  	else {
-	                  		
-	                      	mapAnswers.put(objQuestions.id,objQuestions.Answer__r);
-	                      	system.debug('=====mapAnswers2====='+mapAnswers);
-	                      	//TotalAnswersCount ++;
-	                  	}
-	                  		}		//}				
+							if(objQuestions.Answer__r.size() <= 0) {
+								
+								system.debug('=====Answer__r====='+objQuestions.Answer__r);					
+								objAnswer = new Answer__c();
+		                      	objAnswer.Question__c = objQuestions.id; 
+		                      	objAnswer.opportunity__c = strOpportunityIdd;
+		                      	objAnswer.Product__c = ProductId;
+
+		                      	if(mapAnswers.containsKey(objQuestions.id)) {
+		                      		
+		                      		lstAnswers_temp = mapAnswers.get(objQuestions.id);
+		                      	}
+		                      	
+		                      	lstAnswers_temp.add(objAnswer);
+		                      	//mapAnswers.put(objQuestions.id,objAnswer);
+		                      	mapAnswers.put(objQuestions.id,lstAnswers_temp);
+		                      	system.debug('=====objAnswer====='+objAnswer);
+		                      	//system.debug('=====mapAnswers1====='+mapAnswers);
+		                      	//lstAnswers.add(objAnswer); 
+		                      	system.debug('=====lstAnswers====='+lstAnswers);      
+		                  	}
+		                  	else {
+		                  		
+		                      	mapAnswers.put(objQuestions.id,objQuestions.Answer__r);
+		                      	system.debug('=====mapAnswers2====='+mapAnswers);
+		                  	}
+	                  }					
 				}
 				
 				for(Product2 objProdId : lstProductObject) {
@@ -201,12 +198,6 @@ public with sharing class PIP_QA_on_OpportunityController {
 					lstQuestionAnswers.add(new QuestionAnswers(strOpportunityIdd, lstProductObject, objPG.Name, objProdId.Name, mapPGid_LstofQues.get(ProductGroupId), mapAnswers, mapOptions, mapSelectOptions));
 				}
 				
-				for(Opportunity objOpp : [SELECT Total_Answered_Fields__c, Total_Answers__c
-											FROM Opportunity]) {
-												
-					TotalAnswer = objOpp.Total_Answers__c;
-					TotalAnsweredField = objOpp.Total_Answered_Fields__c; 							
-				}
 			}
 		}
 		catch(Exception e) {
@@ -239,37 +230,34 @@ public with sharing class PIP_QA_on_OpportunityController {
 		
 		try { 
 			
-				system.debug('=====comes inside submit=====');
-				list<Answer__c> lstAnsToBeUpdated =  new List<Answer__c>();
-				list<String> lstRetriveAnswers = new List<String>();
-	        	for(QuestionAnswers obj : lstQuestionAnswers) {
+			system.debug('=====comes inside submit=====');
+			list<Answer__c> lstAnsToBeUpdated =  new List<Answer__c>();
+			list<String> lstRetriveAnswers = new List<String>();
+	        for(QuestionAnswers obj : lstQuestionAnswers) {
 	        		
-	          	  	system.debug('=====obj====='+obj);
-	          	  	system.debug('=====obj.lstProductObject====='+obj.lstProductObject);
-	          	  	for(Product2 objProd2 : obj.lstProductObject) {
+	        	system.debug('=====obj====='+obj);
+	        	system.debug('=====obj.lstProductObject====='+obj.lstProductObject);
+	        	for(Product2 objProd2 : obj.lstProductObject) {
 	          	  		
-	          	  		system.debug('=====obj.lstQuestobject====='+obj.lstQuestobject);
-		              	for(Question__c objQues: obj.lstQuestobject) {
+	          		system.debug('=====obj.lstQuestobject====='+obj.lstQuestobject);
+		        	for(Question__c objQues: obj.lstQuestobject) {
 		              		
-		              		//lstRetriveAnswers.add(obj.mapOptions.get(objQues.id));
-		              		
-		              		system.debug('=====lstRetriveAnswers====='+lstRetriveAnswers);
-		              		if(objQues.Question_Type__c == 'picklist') {
+			            //lstRetriveAnswers.add(obj.mapOptions.get(objQues.id));
+			            system.debug('=====lstRetriveAnswers====='+lstRetriveAnswers);
+			            if(objQues.Question_Type__c == 'picklist') {
 		                		
-		                  		obj.mapAnswers.get(objQues.id)[0].Answer_TextType__c = obj.mapOptions.get(objQues.id);
-		                      	system.debug('=====obj.mapOptions.get(objQues.id)====='+obj.mapOptions.get(objQues.id));	
-		                  	}
-		                  	system.debug('=====obj.mapOptions.get(objQues.id)====='+obj.mapOptions.get(objQues.id));
-		                  	system.debug('=====objQues.id====='+objQues.id);
-		                  	//lstAnsToBeUpdated.add(obj.mapAnswers.get(objQues.Id)); 
-		                  	lstAnsToBeUpdated.add(obj.mapAnswers.get(objQues.Id)[0]);
-		                  	system.debug('=====lstAnsToBeUpdated====='+lstAnsToBeUpdated);
-		                  	//break;
-		              	}
-	          	 	}		
-	       		}
-	       		
-	          upsert lstAnsToBeUpdated;
+			                obj.mapAnswers.get(objQues.id)[0].Answer_TextType__c = obj.mapOptions.get(objQues.id);
+			                system.debug('=====obj.mapOptions.get(objQues.id)====='+obj.mapOptions.get(objQues.id));	
+		                }
+		            	system.debug('=====obj.mapOptions.get(objQues.id)====='+obj.mapOptions.get(objQues.id));
+		                system.debug('=====objQues.id====='+objQues.id);
+		                //lstAnsToBeUpdated.add(obj.mapAnswers.get(objQues.Id)); 
+		                lstAnsToBeUpdated.add(obj.mapAnswers.get(objQues.Id)[0]);
+		                system.debug('=====lstAnsToBeUpdated====='+lstAnsToBeUpdated);
+					}
+	    		}		
+	    	}
+	       	upsert lstAnsToBeUpdated;
 		}
 		catch (Exception e) {
 			

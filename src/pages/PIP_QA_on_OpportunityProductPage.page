@@ -1,59 +1,15 @@
 <apex:page standardcontroller="Opportunity" extensions="PIP_QA_on_OpportunityController" >
 	
 	<script type="text/javascript" src="{!URLFOR($Resource.JQuery)}"></script>
-	
-	<script type="text/javascript">  
-		
-		var $ = jQuery.noConflict();
-		
-		var PIP_QA_on_OpportunityProductPage = function() {
-			
-			var strOpportunityIdd = '';
-			
-			var init = function(OppId) {
-				
-				console.log('==OppId=='+OppId);
-				strOpportunityIdd = OppId;
-				fetchClientQA(strOpportunityIdd);
-			}
-			
-			/*var refreshPage = function() {
-			
-				$('#something').click(function() {
-    				location.reload();
-				});	
-			}*/
-			return{
-			
-				init: init
-				//refreshPage: refreshPage
-			}
-			
-		}();
-		
-		$(document).ready(function() {
-			
-			console.log('==comes in onLoad==');
-			console.log('==cstrOpportunityIdd=='+'{!strOpportunityIdd}');
-			PIP_QA_on_OpportunityProductPage.init('{!strOpportunityIdd}');
-			//populateAnswer_ifAlreadyPresent();
-		});
-		
-	</script>
 	<apex:form >
-	
-		<apex:actionFunction name="fetchClientQA" action="{!fetchClientQuestionsAnsAnswers}" rerender="QATable">
-	        <apex:param name="strOpportunityId" value="" assignTo="{!strOpportunityIdd}" />
-    	</apex:actionFunction>
-    	
-    	<!-- <apex:actionFunction name="populateAnswer_ifAlreadyPresent" action="{!populateAnswers}" rerender="QATable">
-    	</apex:actionFunction>-->
     
 		<apex:pageBlock >
+		
 			<apex:pageBlockButtons > 
 				<apex:commandButton value="Submit" action="{!Submit}" />   
                 <apex:commandButton value="cancel" action="{!Cancel}" />     
 			</apex:pageBlockButtons>
+			
 			<apex:pageBlockTable id="QATable" value="{!lstQuestionAnswers}" var="table">
 				
 				<apex:column >
@@ -68,6 +24,7 @@
 				
 				<apex:column >
 					<apex:facet name="header"> Questions and Answers</apex:facet>
+					
 					<apex:pageBlockTable id="QWrapperTable" value="{!table.lstQuestobject}" var="QuesTable">
 						
 						<apex:column >
@@ -110,23 +67,20 @@
 						
 					<!-- </apex:pageBlockTable>
 				</apex:column>-->
-				
+						
 			</apex:pageBlockTable>
 			<br/>
+			
  			<apex:outputPanel >
-	        	<apex:outputText value="Total No.Questions : " />
-<!-- 	            	<span id="NoQuestions" name="NoQuestions"> {!TotalAnswer} </span>  -->
-						<apex:outputText value="{!TotalAnswer}"/>
+	        	<apex:outputText value="Total No.Questions : " /> <span> {!TotalAnswer} </span> 
 	        </apex:outputPanel> <br/><br/>
 	        
 	        <apex:outputPanel >
-	        	<apex:outputText value="No.Questions Answered : " />
-<!-- 	            	<span id="NoAnsweredQuestions" name="NoAnsweredQuestions"> {!TotalAnsweredField} </span>  -->
+	        	<apex:outputText value="No.Questions Answered : " /> <span> {!TotalAnsweredField} </span> 
 	        </apex:outputPanel> <br/><br/>
 	        
 	        <apex:outputPanel >
-	        	<apex:outputText value="No.Questions Not Answered : " />
-<!-- 	            	<span id="NoUnAnsweredQuestions" name="NoUnAnsweredQuestions">  </span>  -->
+	        	<apex:outputText value="No.Questions Not Answered : " /> <span > {!TotalUnAnsweredField} </span> 
 	        </apex:outputPanel> <br/><br/> 
 	        
 		</apex:pageBlock>
