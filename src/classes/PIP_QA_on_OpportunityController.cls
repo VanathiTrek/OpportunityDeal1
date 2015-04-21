@@ -10,6 +10,7 @@ public with sharing class PIP_QA_on_OpportunityController {
 	public String strOpportunityIdd 						{get;set;}
 	public String Idd										{get;set;}
 	
+	public Integer TotalQuestionCount									{get;set;}
 	public Decimal TotalAnswer 								{get;set;}
 	public Decimal TotalAnsweredField 						{get;set;}
 	public Decimal TotalUnAnsweredField						{get;set;}
@@ -60,6 +61,7 @@ public with sharing class PIP_QA_on_OpportunityController {
 	//Main Class Constructor
 	public PIP_QA_on_OpportunityController (ApexPages.StandardController sc) {
 		
+		TotalQuestionCount = 0;
 	 	strOpportunityIdd = ApexPages.currentPage().getParameters().get('Idd');
 	 	fetchClientQuestionsAnsAnswers();
 	}
@@ -92,15 +94,6 @@ public with sharing class PIP_QA_on_OpportunityController {
 			system.debug('=====setProductId0====='+setProductId);				
 		}
 		
-		for(Opportunity objOpp : [	SELECT Id, Total_Answered_Fields__c, Total_UnAnswered_Fields__c
-									FROM Opportunity
-									WHERE Id =: strOpportunityIdd]) {
-											
-			TotalUnAnsweredField = objOpp.Total_UnAnswered_Fields__c;
-			TotalAnsweredField = objOpp.Total_Answered_Fields__c; 
-			TotalAnswer = TotalUnAnsweredField + TotalAnsweredField;								
-		}
-							
 		for(Product_Group__c objPG : [	SELECT Id, Name, 
 											(	SELECT Id, Name, Product_Group__c 
 												FROM Products__r
@@ -134,7 +127,8 @@ public with sharing class PIP_QA_on_OpportunityController {
 					lstQuest_temp.add(objQuestions);
 					mapPGid_LstofQues.put(ProductGroupId, lstQuest_temp);
 					system.debug('===mapPGid_LstofQues===='+mapPGid_LstofQues);
-					    
+					TotalQuestionCount = TotalQuestionCount+1;   
+					
 					    /*Get Picklist values*/
 	                  	lstSelectOptions = new list<selectOption>();
 	                  	list<string> lstPicklistOptions = new list<string>();
@@ -189,6 +183,14 @@ public with sharing class PIP_QA_on_OpportunityController {
 	                  }					
 				}
 				
+				for(Opportunity objOpp : [	SELECT Id, Total_Answered_Fields__c, Total_UnAnswered_Fields__c
+									FROM Opportunity
+									WHERE Id =: strOpportunityIdd]) {
+											
+					TotalAnsweredField = objOpp.Total_Answered_Fields__c; 
+					TotalUnAnsweredField = TotalQuestionCount - TotalAnsweredField;								
+				}
+							
 				for(Product2 objProdId : lstProductObject) {
 					
 					system.debug('=====mapAnswers1====='+mapAnswers);
@@ -205,26 +207,6 @@ public with sharing class PIP_QA_on_OpportunityController {
 			system.debug('====Exception ===='+e);
 		}
 	}
-	
-	/*public void populateAnswers() {
-		 
-          list<Answer__c> lstAnsToPopulate =  new List<Answer__c>();
-          //if(lstQuestionAnswers != null) { 
-          	
-          	for(QuestionAnswers obj :lstQuestionAnswers) {
-          		
-          	   	//lstAnsToPopulate =  new List<Answer__c>();
-              	for(Question__c objQues: obj.lstQuestobject) {
-              	   
-                  	if(objQues.Answer__r.size() <= 0)
-                  	lstAnsToPopulate.add(obj.mapAnswers.get(objQues.id)); 
-                  	system.debug('=====lstAnsToPopulate====='+lstAnsToPopulate);
-              	}
-          	}
-           if(lstAnsToPopulate.size()>0)
-           insert lstAnsToPopulate;
-         // }
-	}*/
 	
 	public void Submit() {
 		

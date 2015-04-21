@@ -43,36 +43,12 @@
 						
 					</apex:pageBlockTable>
 				</apex:column>
-				
-				<!-- <apex:column >
-					<apex:facet name="header"> Answers </apex:facet>
-					<apex:pageBlockTable id="AWrapperTable" value="{!table.lstQuestobject}" var="AnsTable">
-						<apex:column rendered="{!if(AnsTable.Question_Type__c == 'Text Area', true, false)}">
-<!-- 							 <apex:inputTextarea id="TextArea" value="{!table.mapAnswers[AnsTable.Id].Answer_TextType__c}"/> -->
-<!-- 								<apex:inputTextarea id="TextArea" /> -->
-							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
-					<!--	</apex:column>
-						
-						<apex:column rendered="{!if(AnsTable.Question_Type__c == 'Picklist', true, false)}">
-							<apex:selectList id="pickQuest" value="{!table.mapOptions[AnsTable.Id]}" size="1" required="true">
-  								<apex:selectOptions value="{!table.mapSelectOptions[AnsTable.Id]}"/>
-							</apex:selectList>
-							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
-<!-- 						</apex:column> -->
-						
-<!-- 						<apex:column rendered="{!if(AnsTable.Question__r.Question_Type__c == 'Radio Button', true, false)}"> -->
-							
-							<!-- <apex:outputText value="{!AnsTable.Answer_TextType__c}"/>-->
-<!-- 						</apex:column> -->
-						
-					<!-- </apex:pageBlockTable>
-				</apex:column>-->
 						
 			</apex:pageBlockTable>
 			<br/>
 			
  			<apex:outputPanel >
-	        	<apex:outputText value="Total No.Questions : " /> <span> {!TotalAnswer} </span> 
+	        	<apex:outputText value="Total No.Questions : " /> <span> {!TotalQuestionCount} </span> 
 	        </apex:outputPanel> <br/><br/>
 	        
 	        <apex:outputPanel >
